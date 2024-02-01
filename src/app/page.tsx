@@ -3,9 +3,14 @@
 import Container from '@/components/Container';
 import Navbar from '@/components/Navbar';
 import axios from 'axios';
-import { format, parseISO } from 'date-fns';
+import { format, fromUnixTime, parseISO } from 'date-fns';
 import { useQuery } from 'react-query';
 import { convertKelvinToCelsius } from './utils/convertKelvinToCelsius';
+import WeatherIcon from '@/components/WeatherIcon';
+import { getIconName } from './utils/getIconName';
+import { Key } from 'react';
+import WeatherDetails from '@/components/WeatherDetails';
+import { metersToKilometers } from './utils/metersToKilometers';
 
 //https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56
 export default function Home() {
@@ -17,8 +22,6 @@ export default function Home() {
   });
 
   const firstData = data?.list[0];
-
-  console.log(data?.city.country);
 
   if (isLoading)
     return (
@@ -60,14 +63,20 @@ export default function Home() {
               </div>
               {/* time and weather icon */}
               <div className='flex w-full justify-between gap-10 overflow-x-auto pr-3 sm:gap-16'>
-                {data?.list.map((item, index) => (
+                {data?.list.map((item, index: Key | null | undefined) => (
                   <div
                     key={index}
                     className='flex flex-col items-center justify-between gap-2 text-xs font-semibold'
                   >
                     <p className='whitespace-nowrap'>
-                      {format(parseISO(item?.dt_txt ?? ''), 'h:mm')}
+                      {format(parseISO(item?.dt_txt ?? ''), 'H:mm')}
                     </p>
+                    <WeatherIcon
+                      iconName={getIconName(
+                        item?.weather[0].icon,
+                        item?.dt_txt
+                      )}
+                    />
                     <p>
                       {convertKelvinToCelsius(item?.main.temp ?? 0)}
                       °C
@@ -77,9 +86,42 @@ export default function Home() {
               </div>
             </Container>
           </div>
+          <div className='flex gap-4'>
+            {/* left */}
+            <Container className='w-fit  flex-col items-center justify-center px-4'>
+              <p className='text-center capitalize'>
+                {firstData.weather[0].description}
+              </p>
+              <WeatherIcon
+                iconName={getIconName(
+                  firstData?.weather[0].icon ?? '',
+                  firstData?.dt_txt ?? ''
+                )}
+              />
+            </Container>
+            {/* right */}
+            <Container className='justify-between  gap-4 overflow-x-auto bg-yellow-300/80 px-6'>
+              <WeatherDetails
+                visibility={`${metersToKilometers(firstData?.visibility ?? 10000)}km`}
+                humidity={`${firstData?.main.humidity ?? 99}%`}
+                windSpeed={`${firstData?.wind.speed ?? 1.54}m/s`}
+                airPressure={`${firstData?.main.pressure ?? 1024}hPa`}
+                sunrise={format(
+                  fromUnixTime(data?.city.sunrise ?? 1702949452),
+                  'hh:mm'
+                )}
+                sunset={format(
+                  fromUnixTime(data?.city.sunset ?? 1702517657),
+                  'H:mm'
+                )}
+              />
+            </Container>
+          </div>
         </section>
         {/* next 7 day */}
-        <section></section>
+        <section className='flex w-full gap-4'>
+          <p className='text-2xl'>Forecast (7 Datys)</p>
+        </section>
       </main>
     </div>
   );
