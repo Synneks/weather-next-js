@@ -25,7 +25,9 @@ export default function SearchBox(props: Props) {
         onChange={props.onChange}
         value={props.value}
       />
-      <IoSearch className='h-full rounded-r-md bg-blue-500 px-4 py-[9x] text-white hover:bg-blue-600 focus:outline-none' />
+      <button className='h-full rounded-r-md bg-blue-500 px-4 py-[9px] text-white hover:bg-blue-600  focus:outline-none'>
+        <IoSearch />
+      </button>
     </form>
   );
 }

@@ -5,7 +5,7 @@ import { ImMeter } from 'react-icons/im';
 import { LuEye } from 'react-icons/lu';
 import { MdAir } from 'react-icons/md';
 
-type WeatherDetailProps = {
+export type WeatherDetailProps = {
   visibility: string;
   humidity: string;
   windSpeed: string;
@@ -23,17 +23,27 @@ const weatherIcons: { [K in keyof WeatherDetailProps]: React.ReactNode } = {
   sunset: <BsSunset />,
 };
 
+const weatherDetailKeys = Object.keys(weatherIcons) as Array<
+  keyof WeatherDetailProps
+>;
+
 export default function WeatherDetails(props: WeatherDetailProps) {
   return (
     <>
-      {Object.keys(props).map((key, index) => (
-        <SingleWeatherDetail
-          key={index}
-          icon={weatherIcons[key as keyof WeatherDetailProps]}
-          information={key}
-          value={props[key as keyof WeatherDetailProps]}
-        />
-      ))}
+      {Object.keys(props)
+        .filter((key) =>
+          weatherDetailKeys.includes(key as keyof WeatherDetailProps)
+        )
+        .map((key, index) => {
+          return (
+            <SingleWeatherDetail
+              key={index}
+              icon={weatherIcons[key as keyof WeatherDetailProps]}
+              information={key}
+              value={props[key as keyof WeatherDetailProps]}
+            />
+          );
+        })}
     </>
   );
 }

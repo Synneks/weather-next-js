@@ -11,6 +11,8 @@ import { getIconName } from './utils/getIconName';
 import { Key } from 'react';
 import WeatherDetails from '@/components/WeatherDetails';
 import { metersToKilometers } from './utils/metersToKilometers';
+import ForecastWeatherDetail from '@/components/ForecastWeatherDetail';
+import { createForecastWeatherDetailProps } from './utils/createForecastWeatherDetailProps';
 
 //https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_KEY}&cnt=56
 export default function Home() {
@@ -22,6 +24,23 @@ export default function Home() {
   });
 
   const firstData = data?.list[0];
+
+  const uniqueDates = [
+    ...(new Set(
+      data?.list.map(
+        (entry) => new Date(entry.dt * 1000).toISOString().split('T')[0]
+      )
+    ) as Iterable<string>),
+  ];
+
+  // Filetering the data to get the first entry after 6 AM for each unique date
+  const filteredData = uniqueDates.map((date) => {
+    return data?.list.find(
+      (entry) =>
+        new Date(entry.dt * 1000).toISOString().split('T')[0] === date &&
+        new Date(entry.dt_txt).getHours() >= 6
+    );
+  });
 
   if (isLoading)
     return (
@@ -43,10 +62,11 @@ export default function Home() {
                 ({format(parseISO(firstData?.dt_txt ?? ''), 'dd.MM.yyyy')})
               </p>
             </h2>
+            {/* temperatures row*/}
             <Container className='items-center gap-10 px-6'>
-              <div className='flex flex-col px-4'>
+              <div className='flex flex-col items-center px-4'>
                 <span className='text-5xl'>
-                  {convertKelvinToCelsius(firstData?.main.temp ?? 0)}°C
+                  {convertKelvinToCelsius(firstData?.main.temp ?? 0)}°
                 </span>
                 <p className='space-x-1 whitespace-nowrap text-xs'>
                   Feels like{' '}
@@ -86,6 +106,7 @@ export default function Home() {
               </div>
             </Container>
           </div>
+          {/* weather description */}
           <div className='flex gap-4'>
             {/* left */}
             <Container className='w-fit  flex-col items-center justify-center px-4'>
@@ -119,8 +140,14 @@ export default function Home() {
           </div>
         </section>
         {/* next 7 day */}
-        <section className='flex w-full gap-4'>
-          <p className='text-2xl'>Forecast (7 Datys)</p>
+        <section className='flex w-full flex-col gap-4'>
+          <p className='text-2xl'>Forecast (7 Days)</p>
+          {filteredData.map((item, index) => (
+            <ForecastWeatherDetail
+              key={index}
+              {...createForecastWeatherDetailProps(item, data)}
+            />
+          ))}
         </section>
       </main>
     </div>
