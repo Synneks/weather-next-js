@@ -120,8 +120,8 @@ export default function Navbar({ location }: Props) {
           </section>
         </div>
       </nav>
-      <section className='flex max-w-7xl md:hidden'>
-        <div className='relative'>
+      <section className='flex md:hidden'>
+        <div className='mx-3 w-full'>
           {/* Search */}
           <SearchBox
             value={city}

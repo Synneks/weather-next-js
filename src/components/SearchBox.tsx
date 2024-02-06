@@ -19,7 +19,7 @@ export default function SearchBox(props: Props) {
       onSubmit={props.onSubmit}
     >
       <input
-        className='h-full w-[230px] rounded-l-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
+        className='h-full w-full rounded-l-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'
         type='text'
         placeholder='Search location...'
         onChange={props.onChange}
